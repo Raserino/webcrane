@@ -45,7 +45,6 @@ void copyarray(float *vector1, float *vector2)
     }
 }
 
-
 float getLaenge(SEIL seil)
 {
     float angles[maxAnzahlAufhaengungen - 2];
@@ -141,7 +140,6 @@ void setAufhaengung(SEIL *seil, float x, float y, float z, int Haken)
     seil->aufhaengungen[seil->end_index][1] = y;
     seil->aufhaengungen[seil->end_index][2] = z;
     seil->aufhaengungen[seil->end_index][3] = Haken;
-
 }
 
 #endif // WEB_CRANE_H_INCLUDED
