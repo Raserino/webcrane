@@ -52,7 +52,7 @@ float getLength(CABLE cable)
     //The first intersection equals the first pulley
     for (int j = 0; j<=2 ; j++)
     {
-        Schnittpunkte[0][j] = cable.pulleys[0][j];
+        intersections[0][j] = cable.pulleys[0][j];
     }
 
     // step by step filling up of intersections array
@@ -84,43 +84,46 @@ float getLength(CABLE cable)
         } //Normalizing mean vector
 
         //Calculating distance between intersection and mounting position of pulley
-        float differenzlaenge = radius / sin(angle / 2) - LaengeAufhaengung;
+        float differenzlength = radius / sin(angle / 2) - lengthAufhaengung;
         for (int j = 0; j<=2; j++)
         {
-            Schnittpunkte[i][j] = cable.pulleys[i][j] - mvector[j] * differenzlaenge;
+            intersections[i][j] = cable.pulleys[i][j] - mvector[j] * differenzlength;
         } // final calculating of intersection by shifting the mounting position along the mean vector
         
     }
     //Setting the latest intersection in the position of the last pulley
     for (int j = 0; j<=2 ; j++)
     {
-        Schnittpunkte[cable.end_index][j] = cable.pulleys[cable.end_index][j];
+        intersections[cable.end_index][j] = cable.pulleys[cable.end_index][j];
     }
 
     //Calculating length of the cable
-    float laenge = 0;
+    float length = 0;
     for (int i = 0; i<= cable.end_index - 1; i++)
     {
         float vector[3] = {0};
         for (int j = 0; j<=2; j++)
         {
-            vector[j] = Schnittpunkte[i][j] - Schnittpunkte[i + 1][j];
+            vector[j] = intersections[i][j] - intersections[i + 1][j];
         } //Calculating connecting vectors between intersections
 
-        laenge += norm(vector);
+        length += norm(vector);
 
         if (i != cable.end_index - 1)
         {
-            laenge += radius * (3.14159 - angles[i] - 2 / tan( angles[i]/2 ));
+            length += radius * (3.14159 - angles[i] - 2 / tan( angles[i]/2 ));
         } //Correction of the rounding of the pulley wheels with a correction term
     }
 
-    return laenge;
+    return length;
 }
 
+float Simulink_getLength(int cable_index)
+{
+    return;
+}
 
-
-void moveHaken(CABLE *cable, float x, float y, float z)
+void moveHook(CABLE *cable, float x, float y, float z)
 {
     //iterating through the pulleys array
     for (int j = 0; j <= cable->end_index; j++)
@@ -135,18 +138,18 @@ void moveHaken(CABLE *cable, float x, float y, float z)
     }
 }
 
-void Simulink_moveHaken()
+void Simulink_moveHook(int cable_index, float x, float y, float z)
 {
-
+    return;
 }
 
-void setPulley(CABLE *cable, float x, float y, float z, int Haken)
+void setPulley(CABLE *cable, float x, float y, float z, int hook)
 {
     cable->end_index++;
     cable->pulleys[cable->end_index][0] = x;
     cable->pulleys[cable->end_index][1] = y;
     cable->pulleys[cable->end_index][2] = z;
-    cable->pulleys[cable->end_index][3] = Haken;
+    cable->pulleys[cable->end_index][3] = hook;
 }
 
 #endif // WEB_CRANE_H_INCLUDED
