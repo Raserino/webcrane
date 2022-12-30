@@ -1,155 +1,32 @@
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-
 #ifndef WEB_CRANE_H_INCLUDED
 #define WEB_CRANE_H_INCLUDED
 
-//#include<Arduino.h>
-
-#include <math.h>
-#include <string.h>
-
-#define maxNumberPulleys 5
-
-const float r_pulley = 50;
-const float L_pulley = 150;
+#define maxNumberSuspensions 5
 
 typedef struct
 {
-    float length;
     int end_index;
-    float pulleys[maxNumberPulleys][4];
+    float Suspensions[maxNumberSuspensions][4];
 }CABLE;
 
-float dotprodukt(float vector1[3], float vector2[3])
-{
-    float dotproduct = 0;
-    for (int i = 0; i<= 2; i++)
-    {
-        dotproduct += vector1[i] * vector2[i];
-    }
-    return dotproduct;
-}
+extern CABLE cables[4];
 
-float norm(float vector[3])
-{
-    return sqrt(dotproduct(vector, vector));
-}
+float dotproduct(float vector1[3], float vector2[3]);
 
-void copyarray(float *vector1, float *vector2)
-{
-    for (int i = 0; i<=2; i++)
-    {
-        *(vector1 + i) = *(vector2 + i);
-    }
-}
+float norm(float vector[3]);
 
-float getLength(CABLE cable)
-{
-    float angles[maxNumberPulleys - 2];
-    float intersections[maxNumberPulleysn][3];
-    //The first intersection equals the first pulley
-    for (int j = 0; j<=2 ; j++)
-    {
-        intersections[0][j] = cable.pulleys[0][j];
-    }
+void copyarray(float *vector1, float *vector2);
 
-    // step by step filling up of intersections array
-    for (int i = 1; i <= cable.end_index - 1; i++)
-    {
-        //Generating two vectors connecting three positions
-        float vector1[3] = {0};
-        float vector2[3] = {0};
-        for (int j = 0; j<=2; j++)
-        {
-            vector1[j] =  cable.pulleys[i - 1][j] - cable.pulleys[i][j];
-            vector2[j] =  cable.pulleys[i + 1][j] - cable.pulleys[i][j];
-        }
+float getLength(CABLE* cable);
 
-        //Calculating angle between the vectors
-        float angle = acos( skprodukt(vector1, vector2) / (norm(vector1)*norm(vector2)) );
-        angles[i - 1] = angle; //Zwischenspeichern des Winkels für spätere Berechnung
+float Simulink_getLength(int cable_index);
 
-        //Calculating intersection
-        float mvector[3] = {0};
-        for (int j = 0; j<=2; j++)
-        {
-            mvector[j] = vector1[j] + vector2[j];
-        } //Calculating mean vector of vector1 and vector2
-        float mvectorLength = norm(mvector);
-        for (int j = 0; j<=2; j++)
-        {
-            mvector[j] /= mvectorLength;
-        } //Normalizing mean vector
+void moveHook(CABLE *cable, float x, float y, float z);
 
-        //Calculating distance between intersection and mounting position of pulley
-        float differenzlength = radius / sin(angle / 2) - lengthAufhaengung;
-        for (int j = 0; j<=2; j++)
-        {
-            intersections[i][j] = cable.pulleys[i][j] - mvector[j] * differenzlength;
-        } // final calculating of intersection by shifting the mounting position along the mean vector
-        
-    }
-    //Setting the latest intersection in the position of the last pulley
-    for (int j = 0; j<=2 ; j++)
-    {
-        intersections[cable.end_index][j] = cable.pulleys[cable.end_index][j];
-    }
+void Simulink_moveHook(float x, float y, float z);
 
-    //Calculating length of the cable
-    float length = 0;
-    for (int i = 0; i<= cable.end_index - 1; i++)
-    {
-        float vector[3] = {0};
-        for (int j = 0; j<=2; j++)
-        {
-            vector[j] = intersections[i][j] - intersections[i + 1][j];
-        } //Calculating connecting vectors between intersections
+void setSuspension(CABLE *cable, float x, float y, float z, int hook);
 
-        length += norm(vector);
-
-        if (i != cable.end_index - 1)
-        {
-            length += radius * (3.14159 - angles[i] - 2 / tan( angles[i]/2 ));
-        } //Correction of the rounding of the pulley wheels with a correction term
-    }
-
-    return length;
-}
-
-float Simulink_getLength(int cable_index)
-{
-    return;
-}
-
-void moveHook(CABLE *cable, float x, float y, float z)
-{
-    //iterating through the pulleys array
-    for (int j = 0; j <= cable->end_index; j++)
-    {
-    //if the array has a 1 in the forth array, the pulley belongs to the hook and gets moved
-        if (  cable->pulleys[j][3] )
-        {
-            cable->pulleys[j][0] += x;
-            cable->pulleys[j][1] += y;
-            cable->pulleys[j][2] += z;
-        }
-    }
-}
-
-void Simulink_moveHook(int cable_index, float x, float y, float z)
-{
-    return;
-}
-
-void setPulley(CABLE *cable, float x, float y, float z, int hook)
-{
-    cable->end_index++;
-    cable->pulleys[cable->end_index][0] = x;
-    cable->pulleys[cable->end_index][1] = y;
-    cable->pulleys[cable->end_index][2] = z;
-    cable->pulleys[cable->end_index][3] = hook;
-}
+void init();
 
 #endif // WEB_CRANE_H_INCLUDED
