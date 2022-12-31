@@ -3,8 +3,12 @@
 
 int main()
 {
-    cables[0].end_index = 42;
-    //init();
-    printf("Int: %i",cables[0].end_index);
+    init();
+    for (int i = 0; i<4; i++)
+    {
+        float L = getLength(cables+i);
+        printf("Length cable: %.2f\n",L);
+    }
+    
     return 0;
 }
