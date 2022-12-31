@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <math.h>
-#include <string.h>
+//#include <string.h>
 #include "webcrane.h"
 
 const float r_Suspension = 0.050;
@@ -23,6 +23,14 @@ float norm(float *vector)
     return sqrt(dotproduct(vector, vector));
 }
 
+void copyarray(float *vector1, float *vector2)
+{
+    for (int i = 0; i<3; i++)
+    {
+        *(vector1 + i) = *(vector2 + i);
+    }
+}
+
 float getLength(CABLE* cable)
 {
     float angles[maxNumberSuspensions - 2];
@@ -33,16 +41,26 @@ float getLength(CABLE* cable)
         intersections[0][j] = cable->Suspensions[0][j];
     }
 
+    //Generating three auxiliary frames
+    float pos1[3];
+    float pos2[3];
+    float pos3[3];
+
     // step by step filling up of intersections array
-    for (int i = 1; i <= cable->end_index - 1; i++)
+    for (int i = 1; i < cable->end_index; i++)
     {
+        //Definieren der drei Positionen
+        copyarray(pos1, &cable->Suspensions[i-1][0]);
+        copyarray(pos2, &cable->Suspensions[i][0]);
+        copyarray(pos3, &cable->Suspensions[i+1][0]);
+
         //Generating two vectors connecting three positions
         float vector1[3] = {0};
         float vector2[3] = {0};
         for (int j = 0; j<3; j++)
         {
-            vector1[j] =  cable->Suspensions[i - 1][j] - cable->Suspensions[i][j];
-            vector2[j] =  cable->Suspensions[i + 1][j] - cable->Suspensions[i][j];
+            vector1[j] = pos1[j] - pos2[j];
+            vector2[j] = pos3[j] - pos2[j];
         }
 
         //Calculating angle between the vectors
@@ -62,10 +80,10 @@ float getLength(CABLE* cable)
         } //Normalizing mean vector
 
         //Calculating distance between intersection and mounting position of Suspension
-        float differencelength = r_Suspension / sin(angle / 2) - L_Suspension;
+        float differencelength = L_Suspension - r_Suspension / sin(angle / 2);
         for (int j = 0; j<3; j++)
         {
-            intersections[i][j] = cable->Suspensions[i][j] - mvector[j] * differencelength;
+            intersections[i][j] = pos2[j] + mvector[j] * differencelength;
         } // final calculating of intersection by shifting the mounting position along the mean vector
         
     }
@@ -77,12 +95,12 @@ float getLength(CABLE* cable)
 
     //Calculating length of the cable
     float length = 0;
-    for (int i = 0; i<= cable->end_index - 1; i++)
+    for (int i = 0; i<cable->end_index; i++)
     {
         float vector[3] = {0};
-        for (int j = 0; j<=2; j++)
+        for (int j = 0; j<3; j++)
         {
-            vector[j] = intersections[i][j] - intersections[i + 1][j];
+            vector[j] = intersections[i][j] - intersections[i+1][j];
         } //Calculating connecting vectors between intersections
 
         length += norm(vector);
@@ -142,7 +160,7 @@ void init()
     // z.---> x
 
     // cable 1 (left in sim file)
-    cables[0].end_index = 0;
+    cables[0].end_index = -1;
     setSuspension(cables+0,-5  ,4    ,4,0);
     setSuspension(cables+0,-0.1,0.05 ,3,1);
     setSuspension(cables+0,-5  ,0    ,4,0);
@@ -150,7 +168,7 @@ void init()
     setSuspension(cables+0,-5  ,-4   ,4,0);
 
     // cable 2 (top in sim file)
-    cables[1].end_index = 0;
+    cables[1].end_index = -1;
     setSuspension(cables+1,-4   ,5  ,4,0);
     setSuspension(cables+1,-0.05,0.1,3,1);
     setSuspension(cables+1,0    ,5  ,4,0);
@@ -158,7 +176,7 @@ void init()
     setSuspension(cables+1,4    ,5  ,4,0);
 
     // cable 3 (right in sim file)
-    cables[2].end_index = 0;
+    cables[2].end_index = -1;
     setSuspension(cables+2,5  ,4    ,4,0);
     setSuspension(cables+2,0.1,0.05 ,3,1);
     setSuspension(cables+2,5  ,0    ,4,0);
@@ -166,7 +184,7 @@ void init()
     setSuspension(cables+2,5  ,-4   ,4,0);
 
     // cable 4 (down in sim file)
-    cables[3].end_index = 0;
+    cables[3].end_index = -1;
     setSuspension(cables+3,-4   ,-5  ,4,0);
     setSuspension(cables+3,-0.05,-0.1,3,1);
     setSuspension(cables+3,0    ,-5  ,4,0);
